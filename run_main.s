@@ -9,7 +9,7 @@ in_string2: .string "%s"        # Pstring2
 in_opt:     .string "%d"        # opt
 
     .text
-    .global run_main
+    .globl  run_main
     .type   run_main, @function # define 'run_main' function
 run_main:
     pushq   %rbp                # start the stack-frame by the callee-saver
@@ -31,18 +31,18 @@ run_main:
     movq    $0,%rax             # clear rax before scanf   
     call    scanf
 
-    movq    $in_string2,%rdi    # load register for Pstring2, string goes from bottum->top
-    leaq    -511(%rbp),%rsi     # set address for 2md Pstring
+    movq    $in_string2,%rdi    # load register for Pstring2
+    leaq    -511(%rbp),%rsi     # set address for 2md Pstring, string goes from bottum->top
     movq    $0,%rax             # clear rax before scanf   
     call    scanf
 
-    movq    $in_opt,%rdi         # load register for the user option
-    subq    $16,%rsp            # make more room for the option    
-    leaq    (%rsp),%rsi         # configure where is the option scanned          
-    addq    $16,%rsp            # deallocate space
-    call    run_func            # call the function
+    # movq    $in_opt,%rdi        # load register for the user option
+    # subq    $16,%rsp            # make more room for the option    
+    # leaq    (%rsp),%rsi         # configure where is the option scanned          
+    # addq    $16,%rsp            # deallocate space
+    # call    run_func            # call the function
 
-    addq    $512,%rsp           # end of the main function
-    movq    $0,%rax             # clear rax
-    popq    %rbp                # end the stack-frame 
-    ret
+    # addq    $512,%rsp           # end of the main function
+    # movq    $0,%rax             # clear rax
+    # popq    %rbp                # end the stack-frame 
+    # ret
