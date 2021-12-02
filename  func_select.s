@@ -24,7 +24,7 @@ run_func:
     leaq    -50(%rdi),%rdi          # start the stack from "0"
     cmpq    $10,%rdi                # compare to 10
     ja      .defualt                # if opt > 10 or negative (ja), goto defualt
-    jump    *.Jtable(,%rdi,8)       # for correct case, goto jump table
+    jmp    *.Jtable(,%rdi,8)       # for correct case, goto jump table
     ret
     
     .type   defualt, @function
