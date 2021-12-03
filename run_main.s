@@ -8,8 +8,9 @@ in_len2:    .string "%d"        # len2
 in_string2: .string "%s"        # Pstring2
 in_opt:     .string "%d"        # opt
 
+
     .text
-    .globl  run_main
+    .global  run_main
     .type   run_main, @function # define 'run_main' function
 run_main:
     pushq   %rbp                # start the stack-frame by the callee-saver
@@ -36,16 +37,22 @@ run_main:
     movq    $0,%rax             # clear rax before scanf   
     call    scanf
 
-    # movq    $in_opt,%rdi        # load register for the user option
-    # subq    $16,%rsp            # make more room for the option    
-    # leaq    (%rsp),%rsi         # configure where is the option scanned          
-    # addq    $16,%rsp            # deallocate space
-    # call    run_func            # call the function
+    movq    $in_opt,%rdi        # load register for the user option
+    subq    $16,%rsp            # make more room for the option    
+    leaq    (%rsp),%rsi         # configure where is the option scanned          
+    movq    $0,%rax             # clear rax before scanf
+    call    scanf               # call the function
 
-    # addq    $512,%rsp           # end of the main function
-    # movq    $0,%rax             # clear rax
-    # popq    %rbp                # end the stack-frame 
-    # ret
+    movq    (%rsp),%rdi         # put stack pointer to first argument
+    leaq    -256(%rbp),%rsi     # load the first argument as pstring1 for run_func
+    leaq    -512(%rbp),%rdx     # load the second argument as pstring2 for run_func
+    addq    $16,%rsp            # give more space to the stack frame
+    call    run_func
+
+    addq    $512,%rsp           # end of the main function
+    movq    $0,%rax             # clear rax
+    popq    %rbp                # end the stack-frame 
+    ret
 
     # we are on func_select brench - to change do:
     # git checkout master , and then git merge
