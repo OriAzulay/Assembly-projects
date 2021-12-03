@@ -3,6 +3,7 @@
     .align 8                        # Align address to multiple of 8
 
 # string to printf
+len_50:         .string "first pstring length: %d, second pstring length: %d\n"
 def_option:     .string "invalid option!\n"
 
 jump_table:                         # JUMP TABLE   
@@ -30,27 +31,39 @@ run_func:
     
     .type   default, @function
 .default:
-    movq    $def_option, %rdi
+    movq    $def_option, %rdi       # load format of printf %d for 'invalid'
     movq    $0, %rax                # clear rex before printf
-    call printf
+    call printf                     # call message
     ret
 
     .type   L50, @function
 .L50:
+    movq    %rsi,%rdi               # move 1st pstrlen's address to rdi (by convention)
+    movq    $0,%rax                 # clear rax before calling a function
+    call    pstrlen                 # call func to get 1st string size
+    pushq   %rax                    # keep the answer for later
+    movq    %rdx,%rdi               # move 2nd pstrlen's address to rdi (by convention)
+    movq    $0,%rax                 # clear rax before calling a function
+    call    pstrlen                 # call func to get 2nd string size
+    popq    %rsi                    # pop 1st string's size to rsi for printing
+    movq    %rax,%rdx               # move the second string size for printing
+    movq    $len_50,%rdi            # load format string for printing
+    movq    $0,%rax                 # clear rax before printf
+    call printf                     # print
     ret
-
-    .type   L50, @function
+    
+    .type   L52, @function
 .L52:
     ret
     
-    .type   L50, @function
+    .type   L53, @function
 .L53:
     ret
 
-    .type   L50, @function
+    .type   L54, @function
 .L54:
     ret
 
-    .type   L50, @function
+    .type   L55, @function
 .L55:
     ret
