@@ -52,8 +52,40 @@ pstrijcpy:
     jmp     for_pstrijcpy       # next iteraton
     not_valid:
     movq    $invalid,%rdi       # move format for printing
-    movq    $0,%rax            # clear rax before printf
+    movq    $0,%rax             # clear rax before printf
     call printf
     ret_arr:
     movq    %rdi,%rax           # return value of array
+    ret
+
+# swapCase - function that replace every uppercase to lowercase and the oposite, 
+# for pstring1 & pstring2
+    .global swapCase
+    .type   swapCase, @function
+swapCase:
+    movq    $0,%r10              # counter = 0
+    for_swapcase:
+    cmpb    (%rsi),%r10b         # counter >= sizeof(pstring)
+    jg      end_swapcase         # finish loop
+    inc     %r10                 # counter ++
+    movb    (%rdi,%r10,1),%r11b  # replace character to r11b
+    cmpb    $65,%r11b            # check if character is lower then string (ascii)
+    jl      for_swapcase         # then new iteration
+    cmpb    $122,%r11b           # check if character is greater (uppercase) then string (ascii)
+    jg      for_swapcase         # then new iteration
+    cmpb    $97,%r11b            # check if letter greater then 'a' in ascii
+    jge     upper_case           # replace it by uppercase
+    cmpb    $90,%r11b            # check if letter lower then 'Z' in ascii
+    jle     lower_case           # replace it by lowercase
+    jmp     for_swapcase         # new itearation
+    upper_case:
+    subb    $32,%r11b            # the 'delta' between the upper & lower case in ascii
+    movb    %r11b,(%rdi,%r10,1)  # replace the old letter by the case
+    jmp     for_swapcase         # return to iteration
+    lower_case:
+    addb    $32,%r11b            # take the 'delta' from upper & lower
+    movb    %r11b,(%rdi,%r10)    # replace old letter
+    jmp     for_swapcase
+    end_swapcase:
+    movq    %rdi,%rax            # return address
     ret

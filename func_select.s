@@ -6,6 +6,7 @@
 case_50:        .string "first pstring length: %d, second pstring length: %d\n"
 case_52:        .string "old char: %c, new char: %c, first string: %s, second string: %s\n"
 case_53:        .string "length: %d, string: %s\n"
+case_54:        .string "length: %d, string: %s\n"
 def_option:     .string "invalid option!\n"
 
 # values for scanf
@@ -40,7 +41,7 @@ run_func:
 .default:
     movq    $def_option, %rdi       # load format of printf %d for 'invalid'
     movq    $0, %rax                # clear rex before printf
-    call printf                     # call message
+    call    printf                  # call message
     ret
 
 # case 50 or 60 - function to return strings length
@@ -57,7 +58,7 @@ run_func:
     movq    %rax,%rdx               # move the second string size for printing
     movq    $case_50,%rdi           # load format string for printing
     movq    $0,%rax                 # clear rax before printf
-    call printf                     # print
+    call    printf                  # print
     ret
     
 # case 52 - function to replace oldChar by newChar
@@ -139,8 +140,35 @@ run_func:
     popq    %r12                    # clear stack
     ret
 
+# case 54 - function to swap between lower-case & upper-case
     .type   L54, @function
 .L54:
+    pushq   %r12                     # register for string2
+    pushq   %r13                     # register for string1
+    pushq   %rsi                     # pstring1 address
+    pushq   %rdx                     # pstring2 address
+    movq    8(%rsp),%rdi             # load space for pstring1
+    call    swapCase
+    movq    (%rsp),%rdi              # load space for pstring2
+    call    swapCase
+    
+    popq    %r12                     # pop pstring2 to r12 
+    popq    %r13                     # pop pstring1 to r13
+    movq    $0,%rsi                  # clear rsi
+    movb    (%r13),%sil              # load sil as pstring's size
+    leaq    1(%r13),%rdx             # start of string to rdx
+    movq    $case_54,%rdi            # load format for printing
+    movq    $0,%rax                  # clear rax before printf
+    call    printf
+
+    movq    $0,%rsi                  # clear rsi
+    movb    (%r12),%sil              # load sil as pstring's size
+    leaq    1(%r12),%rdx             # start of string to rdx
+    movq    $case_54,%rdi            # load format for printing
+    movq    $0,%rax                  # clear rax before printf
+    call    printf
+    popq    %r13                     # clear stack
+    popq    %r12                     # clear stack
     ret
 
     .type   L55, @function
