@@ -5,6 +5,7 @@
 # string to printf
 case_50:        .string "first pstring length: %d, second pstring length: %d\n"
 case_52:        .string "old char: %c, new char: %c, first string: %s, second string: %s\n"
+case_53:        .string "length: %d, string: %s\n"
 def_option:     .string "invalid option!\n"
 
 # values for scanf
@@ -92,8 +93,50 @@ run_func:
     call    printf
     ret
     
+# case 53 - function to replace charecters by given i-j index
     .type   L53, @function
 .L53:
+    pushq   %r12                    # tempurary1 value
+    pushq   %r13                    # tempurery2 value
+    pushq   %rsi                    # address of pstring1
+    pushq   %rdx                    # address of pstring2
+    subq    $8,%rsp                 # load space for i
+    movq    $uchar_in,%rdi          # load format index
+    leaq    (%rsp),%rsi             # saving value of first scaned int
+    movq    $0,%rax                 # clear rax before scanf
+    call    scanf
+
+    movzbq  (%rsp),%r12             # save i in tempurary1 
+    movq    $uchar_in,%rdi          # load format index
+    leaq    1(%rsp),%rsi            # saving value of second scaned int
+    movq    $0,%rax                 # clear rax before scanf
+    call    scanf
+
+    movzbq  1(%rsp),%rcx            # save the value of j in rcx
+    movq    %r12,%rdx               # save the value of i in rdx
+    addq    $8,%rsp                 # deallocate the indexes space
+    movq    (%rsp),%rsi             # address of pstring2
+    movq    8(%rsp),%rdi           # address of pstring1
+    movq    $0,%rax                 # clear rax before function
+    call    pstrijcpy
+
+    popq    %r12                    # pop second string to r12
+    popq    %r13                    # pop first string to r13
+    movq    $0,%rsi                 # clear rsi 
+    movb    (%r13),%sil             # move pstring1 size to sil
+    leaq    1(%r13),%rdx            # move string's address to rdx
+    movq    $case_53,%rdi           # load format for printing message
+    movq    $0,%rax                 # clear rax before printf
+    call    printf
+    
+    movq    $0,%rsi                 # clear register rsi
+    movb    (%r12),%sil             # move pstring2 size to sil
+    leaq    1(%r12),%rdx            # move string's address to rdx
+    movq    $case_53,%rdi           # load format for printing
+    movq    $0,%rax                 # clear rax before printf
+    call    printf 
+    popq    %r13                    # clear stack
+    popq    %r12                    # clear stack
     ret
 
     .type   L54, @function
