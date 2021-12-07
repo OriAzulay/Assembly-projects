@@ -7,6 +7,7 @@ case_50:        .string "first pstring length: %d, second pstring length: %d\n"
 case_52:        .string "old char: %c, new char: %c, first string: %s, second string: %s\n"
 case_53:        .string "length: %d, string: %s\n"
 case_54:        .string "length: %d, string: %s\n"
+case_55:        .string "compare result: %d\n"
 def_option:     .string "invalid option!\n"
 
 # values for scanf
@@ -36,7 +37,7 @@ run_func:
     jmp     *jump_table(,%rdi,8)    # for correct case, goto jump table[opti]
     ret
     
-# case defualt - if opt <50 , opt > 60 or opt==51,56,57,58,59
+# case defualt - if opt < 50 , opt > 60 or opt==51,56,57,58,59
     .type   default, @function
 .default:
     movq    $def_option, %rdi       # load format of printf %d for 'invalid'
@@ -171,6 +172,39 @@ run_func:
     popq    %r12                     # clear stack
     ret
 
+# case 55 - function gets two pointers to pstring and compare lexicographic size
     .type   L55, @function
 .L55:
+    pushq   %r12                      # registers for  saving temps
+    pushq   %r13                      # same
+    pushq   %rsi                      # push pstring1 address to stack
+    pushq   %rdx                      # push pstring2 address to stack
+    subq    $8,%rsp                   # load stack space for format
+    movq    $uchar_in,%rdi            # load range size format
+    leaq    (%rsp),%rsi               # space for saving scaned numeric character
+    movq    $0,%rax                   # clear rax before scanf
+    call    scanf
+    movzbq  (%rsp),%r12               # register r12 for i
+    movq    $uchar_in,%rdi            # load range size format
+    leaq    1(%rsp),%rsi              # space for saving scaned numeric character
+    movq    $0,%rax                   # clear rax before scanf
+    call    scanf
+
+    movzbq  1(%rsp),%rcx              # j letter ar rcx
+    movq    %r12,%rdx                 # i letter at rdx
+    addq    $8,%rsp                   # clear stack space from i,j
+    movq    (%rsp),%rsi               # move address of pstring2
+    movq    8(%rsp),%rdi              # move address of pstring1
+    movq    $0,%rax                   # clear rax before calling a function
+    call    pstrijcmp
+
+    movq    %rax,%rsi                 # result to rsi 
+    movq    $case_55,%rdi             # load format for printing
+    movq    $0,%rax                   # clear rax before printf
+    call    printf
+
+    popq    %rdx                      # clean the stack & memory by order
+    popq    %rsi
+    popq    %r13
+    popq    %r12
     ret

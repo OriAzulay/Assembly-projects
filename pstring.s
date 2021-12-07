@@ -89,3 +89,49 @@ swapCase:
     end_swapcase:
     movq    %rdi,%rax            # return address
     ret
+
+
+# pstrijcmp - function that gets poiter of string & i-j range, 
+# and checks lexicographiclly who's string is greater
+    .global pstrijcmp
+    .type   pstrijcmp, @function
+pstrijcmp:
+movq    %rdx,%r10                # start the check by i in r10
+    pushq   %r12                 # calle saved
+    valid_cmp:
+    cmpb    (%rdi),%cl           # if j>size of(pstring1)
+    jae     not_valid_cmp        # then jump to not valid input error msg
+    cmpb    %cl,%dl              # if i>j
+    ja      not_valid_cmp        # then invalid input - go to error label
+    cmpb    (%rsi),%cl           # if j>size of(pstring2)
+    jae     not_valid_cmp        # then jump to not valid input error msg
+    for_pstrijcmp:
+    cmpb    %cl,%r10b            # if j == counter (i in range)
+    ja      equal_size           # return 0 in message
+    inc     %r10                 # i++
+    movq    $0,%r11              # clear temp for pstring1 pointer r11
+    movb    (%rdi,%r10,1),%r11b  # move character is pstring1[i] to temp1
+    movq    $0,%r12              # clear temp2 for pstring2 pointer r12
+    movb    (%rsi,%r10,1),%r12b  # move character is pstring2[i] to temp2
+    cmpq    %r12,%r11            # compare between the strings
+    je      for_pstrijcmp        # if the're equal, it will return to second line of loop
+    jg      large_cmp            # pstring1[i] > pstring2[i]
+    jl      small_cmp            # pstring1[i] < pstring2[i]
+    not_valid_cmp:
+    movq    $invalid,%rdi        # load invalid message
+    movq    $0,%rax              # clear rax before printf
+    call    printf
+    movq    $-2,%rax             # return -2 for invalid input
+    jmp     end_cmp
+    large_cmp:
+    movq    $1,%rax              # return 1 if pstring1 is bigger
+    jmp     end_cmp
+    small_cmp:
+    movq    $-1,%rax             # return -1 if pstring is smaller
+    jmp     end_cmp
+    equal_size:
+    movq    $0,%rax              # return 0 if strings are equal
+    jmp     end_cmp
+    end_cmp:
+    popq    %r12                 # return calle saver
+    ret
